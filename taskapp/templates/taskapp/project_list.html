@@ -9,7 +9,12 @@
     <h1>Project List</h1>
     <ul>
         {% for project in projects %}
-            <li>{{ project.name }} - {{ project.description }} | Deadline: {{ project.deadline }} | <a href="{% url 'edit_project' project.id %}">Edit</a> | <a href="{% url 'delete_project' project.id %}">Delete</a></li>
+        <li>
+            {{ project.name }} - {{ project.description }} | Deadline: {{ project.deadline }} |
+            <a href="{% url 'project_detail' project.id %}">Details</a> |
+            <a href="{% url 'edit_project' project.id %}">Edit</a> |
+            <a href="{% url 'delete_project' project.id %}">Delete</a>
+        </li>
         {% endfor %}
     </ul>
     <a href="{% url 'create_project' %}">Create Project</a>

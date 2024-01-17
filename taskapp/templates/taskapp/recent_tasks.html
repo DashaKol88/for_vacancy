@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Recent Tasks</title>
+</head>
+<body>
+  <h2>Recent Tasks</h2>
+  <ul>
+    {% for task in recent_tasks %}
+      <li>{{ task.title }}</li>
+    {% endfor %}
+  </ul>
+  <a href="{% url 'project_list' %}">Back to Project List</a>
+</body>
+</html>

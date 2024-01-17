@@ -3,8 +3,8 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 
-from .forms import RegistrationForm, ProjectForm
-from .models import Project
+from .forms import RegistrationForm, ProjectForm, TaskForm
+from .models import Project, Task
 
 
 # Create your views here.
@@ -80,3 +80,62 @@ def delete_project(request, project_id):
 def project_list(request):
     projects = Project.objects.filter(user=request.user).order_by('-id')[:5]
     return render(request, 'taskapp/project_list.html', {'projects': projects})
+
+
+def project_detail(request, project_id):
+    project = get_object_or_404(Project, id=project_id, user=request.user)
+    tasks = Task.objects.filter(project=project).order_by('-created_at')
+
+    if request.method == 'POST':
+        form = TaskForm(request.POST)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.user = request.user
+            task.project = project
+            task.save()
+            return redirect('project_detail', project_id=project.id)
+    else:
+        form = TaskForm()
+
+    return render(request, 'taskapp/project_detail.html', {'project': project, 'tasks': tasks, 'form': form})
+
+
+def create_task(request, project_id):
+    project = get_object_or_404(Project, id=project_id, user=request.user)
+    if request.method == "POST":
+        form = TaskForm(request.POST)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.user = request.user
+            task.project = project
+            task.save()
+            return redirect('project_detail', project_id=project.id)
+    else:
+        form = TaskForm()
+    return render(request, 'taskapp/create_task.html', {'form': form, 'project': project})
+
+def edit_task(request, task_id):
+    task = get_object_or_404(Task, id=task_id, user=request.user)
+
+    if request.method == 'POST':
+        form = TaskForm(request.POST, instance=task)
+        if form.is_valid():
+            form.save()
+            return redirect('project_detail', project_id=task.project.id)
+    else:
+        form = TaskForm(instance=task)
+
+    return render(request, 'taskapp/edit_task.html', {'form': form, 'task': task})
+
+def delete_task(request, task_id):
+    task = get_object_or_404(Task, id=task_id, user=request.user)
+
+    if request.method == 'POST':
+        task.delete()
+        return redirect('project_detail', project_id=task.project.id)
+
+    return render(request, 'taskapp/task_confirm_delete.html', {'task': task})
+
+def recent_tasks(request):
+    recent_tasks = Task.objects.filter(user=request.user).order_by('-created_at')[:10]
+    return render(request, 'taskapp/recent_tasks.html', {'recent_tasks': recent_tasks})
