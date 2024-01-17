@@ -1,14 +1,23 @@
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from .forms import RegistrationForm, ProjectForm, TaskForm
 from .models import Project, Task
 
 
-# Create your views here.
-def register(request):
+def register(request: HttpRequest) -> HttpResponse:
+    """
+    View for user registration.
+
+    Parameters:
+    - request (HttpRequest): The HTTP request object.
+
+    Returns:
+    - HttpResponse: The HTTP response.
+    """
     if request.method == "POST":
         form = RegistrationForm(data=request.POST)
         if form.is_valid():
@@ -20,7 +29,16 @@ def register(request):
     return render(request, 'taskapp/register.html', {'form': form})
 
 
-def login_user(request):
+def login_user(request: HttpRequest) -> HttpResponse:
+    """
+    View for user login.
+
+    Parameters:
+    - request (HttpRequest): The HTTP request object.
+
+    Returns:
+    - HttpResponse: The HTTP response.
+    """
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -40,7 +58,16 @@ def login_user(request):
     return render(request, 'taskapp/login.html', {'form': form})
 
 
-def create_project(request):
+def create_project(request: HttpRequest) -> HttpResponse:
+    """
+    View for creating a new project.
+
+    Parameters:
+    - request (HttpRequest): The HTTP request object.
+
+    Returns:
+    - HttpResponse: The HTTP response.
+    """
     if request.method == "POST":
         form = ProjectForm(data=request.POST)
         if form.is_valid():
@@ -53,7 +80,17 @@ def create_project(request):
     return render(request, 'taskapp/create_project.html', {'form': form})
 
 
-def edit_project(request, project_id):
+def edit_project(request: HttpRequest, project_id: int) -> HttpResponse:
+    """
+    View for editing an existing project.
+
+    Parameters:
+    - request (HttpRequest): The HTTP request object.
+    - project_id (int): The ID of the project to be edited.
+
+    Returns:
+    - HttpResponse: The HTTP response.
+    """
     project = get_object_or_404(Project, id=project_id, user=request.user)
 
     if request.method == 'POST':
@@ -67,7 +104,17 @@ def edit_project(request, project_id):
     return render(request, 'taskapp/edit_project.html', {'form': form, 'project': project})
 
 
-def delete_project(request, project_id):
+def delete_project(request: HttpRequest, project_id: int) -> HttpResponse:
+    """
+    View for confirming and deleting a project.
+
+    Parameters:
+    - request (HttpRequest): The HTTP request object.
+    - project_id (int): The ID of the project to be deleted.
+
+    Returns:
+    - HttpResponse: The HTTP response.
+    """
     project = get_object_or_404(Project, id=project_id, user=request.user)
 
     if request.method == 'POST':
@@ -77,12 +124,31 @@ def delete_project(request, project_id):
     return render(request, 'taskapp/project_confirm_delete.html', {'project': project})
 
 
-def project_list(request):
+def project_list(request: HttpRequest) -> HttpResponse:
+    """
+    View for listing user's projects.
+
+    Parameters:
+    - request (HttpRequest): The HTTP request object.
+
+    Returns:
+    - HttpResponse: The HTTP response.
+    """
     projects = Project.objects.filter(user=request.user).order_by('-id')[:5]
     return render(request, 'taskapp/project_list.html', {'projects': projects})
 
 
-def project_detail(request, project_id):
+def project_detail(request: HttpRequest, project_id: int) -> HttpResponse:
+    """
+    View for displaying project details and handling task creation.
+
+    Parameters:
+    - request (HttpRequest): The HTTP request object.
+    - project_id (int): The ID of the project.
+
+    Returns:
+    - HttpResponse: The HTTP response.
+    """
     project = get_object_or_404(Project, id=project_id, user=request.user)
     tasks = Task.objects.filter(project=project).order_by('-created_at')
 
@@ -100,7 +166,17 @@ def project_detail(request, project_id):
     return render(request, 'taskapp/project_detail.html', {'project': project, 'tasks': tasks, 'form': form})
 
 
-def create_task(request, project_id):
+def create_task(request: HttpRequest, project_id: int) -> HttpResponse:
+    """
+    View for creating a new task for a specific project.
+
+    Parameters:
+    - request (HttpRequest): The HTTP request object.
+    - project_id (int): The ID of the project.
+
+    Returns:
+    - HttpResponse: The HTTP response.
+    """
     project = get_object_or_404(Project, id=project_id, user=request.user)
     if request.method == "POST":
         form = TaskForm(request.POST)
@@ -115,7 +191,17 @@ def create_task(request, project_id):
     return render(request, 'taskapp/create_task.html', {'form': form, 'project': project})
 
 
-def edit_task(request, task_id):
+def edit_task(request: HttpRequest, task_id: int) -> HttpResponse:
+    """
+    View for editing an existing task.
+
+    Parameters:
+    - request (HttpRequest): The HTTP request object.
+    - task_id (int): The ID of the task.
+
+    Returns:
+    - HttpResponse: The HTTP response.
+    """
     task = get_object_or_404(Task, id=task_id, user=request.user)
 
     if request.method == 'POST':
@@ -129,7 +215,17 @@ def edit_task(request, task_id):
     return render(request, 'taskapp/edit_task.html', {'form': form, 'task': task})
 
 
-def delete_task(request, task_id):
+def delete_task(request: HttpRequest, task_id: int) -> HttpResponse:
+    """
+    View for deleting an existing task.
+
+    Parameters:
+    - request (HttpRequest): The HTTP request object.
+    - task_id (int): The ID of the task.
+
+    Returns:
+    - HttpResponse: The HTTP response.
+    """
     task = get_object_or_404(Task, id=task_id, user=request.user)
 
     if request.method == 'POST':
@@ -137,6 +233,3 @@ def delete_task(request, task_id):
         return redirect('project_detail', project_id=task.project.id)
 
     return render(request, 'taskapp/task_confirm_delete.html', {'task': task})
-
-
-

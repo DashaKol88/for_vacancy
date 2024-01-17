@@ -2,10 +2,11 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 
+
 class Project(models.Model):
     name = models.CharField(max_length=50)
     project_description = models.TextField(blank=True)
-    deadline = models.DateField(blank=True, null=True,default=timezone.now)
+    deadline = models.DateField(blank=True, null=True, default=timezone.now)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
