@@ -114,6 +114,7 @@ def create_task(request, project_id):
         form = TaskForm()
     return render(request, 'taskapp/create_task.html', {'form': form, 'project': project})
 
+
 def edit_task(request, task_id):
     task = get_object_or_404(Task, id=task_id, user=request.user)
 
@@ -127,6 +128,7 @@ def edit_task(request, task_id):
 
     return render(request, 'taskapp/edit_task.html', {'form': form, 'task': task})
 
+
 def delete_task(request, task_id):
     task = get_object_or_404(Task, id=task_id, user=request.user)
 
@@ -136,6 +138,5 @@ def delete_task(request, task_id):
 
     return render(request, 'taskapp/task_confirm_delete.html', {'task': task})
 
-def recent_tasks(request):
-    recent_tasks = Task.objects.filter(user=request.user).order_by('-created_at')[:10]
-    return render(request, 'taskapp/recent_tasks.html', {'recent_tasks': recent_tasks})
+
+
